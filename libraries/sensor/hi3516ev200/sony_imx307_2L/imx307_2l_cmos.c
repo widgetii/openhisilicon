@@ -111,7 +111,9 @@ extern int imx307_2l_read_register(VI_PIPE ViPipe, int addr);
 // sensor fps mode
 #define IMX307_SENSOR_1080P_30FPS_LINEAR_MODE (1)
 #define IMX307_SENSOR_1080P_30FPS_2t1_WDR_MODE (2)
+#define IMX307_SENSOR_720P_30FPS_LINEAR_MODE (3)
 
+#define IMX307_RES_IS_720P(w, h) ((w) <= 1280 && (h) <= 720)
 #define IMX307_RES_IS_1080P(w, h) ((w) <= 1920 && (h) <= 1080)
 
 #define IMX307_2L_ERR_MODE_PRINT(pstSensorImageMode, pstSnsState)                 \
@@ -271,6 +273,7 @@ static GK_VOID cmos_fps_set(VI_PIPE ViPipe, GK_FLOAT f32Fps,
 			IMX307_VMAX_1080P60TO30_WDR * 30;
 		break;
 
+	case IMX307_SENSOR_720P_30FPS_LINEAR_MODE:
 	case IMX307_SENSOR_1080P_30FPS_LINEAR_MODE:
 		if ((f32Fps <= 30) && (f32Fps >= 0.12)) {
 			u32VMAX = IMX307_VMAX_1080P30_LINEAR * 30 /
@@ -887,6 +890,7 @@ static GK_S32 cmos_get_isp_default(VI_PIPE ViPipe, ISP_CMOS_DEFAULT_S *pstDef)
 
 	switch (pstSnsState->u8ImgMode) {
 	default:
+	case IMX307_SENSOR_720P_30FPS_LINEAR_MODE:
 	case IMX307_SENSOR_1080P_30FPS_LINEAR_MODE:
 		pstDef->stSensorMode.stDngRawFormat.u8BitsPerSample = 12;
 		pstDef->stSensorMode.stDngRawFormat.u32WhiteLevel = 4095;
@@ -971,7 +975,11 @@ static GK_VOID cmos_set_pixel_detect(VI_PIPE ViPipe, GK_BOOL bEnable)
 
 	else {
 		if (pstSnsState->u8ImgMode ==
-		    IMX307_SENSOR_1080P_30FPS_LINEAR_MODE) {
+		    IMX307_SENSOR_720P_30FPS_LINEAR_MODE) {
+			u32FullLines_5Fps =
+				(IMX307_VMAX_1080P30_LINEAR * 30) / 5;
+		} else if (pstSnsState->u8ImgMode ==
+			   IMX307_SENSOR_1080P_30FPS_LINEAR_MODE) {
 			u32FullLines_5Fps =
 				(IMX307_VMAX_1080P30_LINEAR * 30) / 5;
 		} else {
@@ -1217,8 +1225,17 @@ cmos_set_image_mode(VI_PIPE ViPipe,
 
 	if (pstSensorImageMode->f32Fps <= 30) {
 		if (pstSnsState->enWDRMode == WDR_MODE_NONE) {
-			if (IMX307_RES_IS_1080P(pstSensorImageMode->u16Width,
-						pstSensorImageMode->u16Height)) {
+			if (IMX307_RES_IS_720P(pstSensorImageMode->u16Width,
+					       pstSensorImageMode->u16Height)) {
+				u8SensorImageMode =
+					IMX307_SENSOR_720P_30FPS_LINEAR_MODE;
+				pstSnsState->u32FLStd =
+					IMX307_VMAX_1080P30_LINEAR;
+				g_astimx307_2l_State[ViPipe].u8Hcg = 0x2;
+
+			} else if (IMX307_RES_IS_1080P(
+					   pstSensorImageMode->u16Width,
+					   pstSensorImageMode->u16Height)) {
 				u8SensorImageMode =
 					IMX307_SENSOR_1080P_30FPS_LINEAR_MODE;
 				pstSnsState->u32FLStd =

@@ -156,9 +156,11 @@ void imx307_2l_restart(VI_PIPE ViPipe)
 
 #define IMX307_SENSOR_1080P_30FPS_LINEAR_MODE (1)
 #define IMX307_SENSOR_1080P_30FPS_2t1_WDR_MODE (2)
+#define IMX307_SENSOR_720P_30FPS_LINEAR_MODE (3)
 
 void imx307_2l_wdr_1080p30_2to1_init(VI_PIPE ViPipe);
 void imx307_2l_linear_1080p30_init(VI_PIPE ViPipe);
+void imx307_2l_linear_720p30_init(VI_PIPE ViPipe);
 
 void imx307_2l_default_reg_init(VI_PIPE ViPipe)
 {
@@ -196,7 +198,10 @@ void imx307_2l_init(VI_PIPE ViPipe)
 		} else {
 		}
 	} else {
-		imx307_2l_linear_1080p30_init(ViPipe);
+		if (IMX307_SENSOR_720P_30FPS_LINEAR_MODE == u8ImgMode)
+			imx307_2l_linear_720p30_init(ViPipe);
+		else
+			imx307_2l_linear_1080p30_init(ViPipe);
 	}
 	g_pastImx307_2l[ViPipe]->bInit = GK_TRUE;
 	return;
@@ -209,15 +214,21 @@ void imx307_2l_exit(VI_PIPE ViPipe)
 	return;
 }
 
-/* 1080P30 and 1080P25 */
-void imx307_2l_linear_1080p30_init(VI_PIPE ViPipe)
+enum WINMODE {
+	WINMODE_1080P = 0,
+	WINMODE_720P = 1,
+	WINMODE_CROP = 4,
+};
+
+void imx307_2l_init_universal(VI_PIPE ViPipe, const char *name,
+			      enum WINMODE winmode, unsigned fps)
 {
 	// Enter Standby
 	imx307_2l_write_register(ViPipe, 0x3000, 0x01); // Standby mode
 	imx307_2l_write_register(ViPipe, 0x3002, 0x00); // XMSTA
 	imx307_2l_write_register(ViPipe, 0x3005, 0x00); // ADBIT
 	imx307_2l_write_register(ViPipe, 0x3007,
-				 0x00); // VREVERSE & HREVERSE & WINMODE
+				 winmode << 4); // VREVERSE & HREVERSE & WINMODE
 	imx307_2l_write_register(ViPipe, 0x3009, 0x02); // FRSEL & FDG_SEL
 	imx307_2l_write_register(ViPipe, 0x300A, 0x3C); // BLKLEVEL
 	imx307_2l_write_register(ViPipe, 0x3011, 0x0A);
@@ -279,10 +290,20 @@ void imx307_2l_linear_1080p30_init(VI_PIPE ViPipe)
 	// Standby Cancel
 	imx307_2l_write_register(ViPipe, 0x3000, 0x00); // standby
 
-	printf("==============================================================\n");
-	printf("=====Sony imx307_2l sensor 1080P30fps(MIPI) init success!=====\n");
-	printf("==============================================================\n");
-	return;
+	printf("=====Sony imx307_2l sensor %s%dfps(MIPI) init success!=====\n",
+	       name, fps);
+}
+
+/* 720p-HD readout mode */
+void imx307_2l_linear_720p30_init(VI_PIPE ViPipe)
+{
+	imx307_2l_init_universal(ViPipe, "720P", WINMODE_720P, 30);
+}
+
+/* 1080P30 and 1080P25 */
+void imx307_2l_linear_1080p30_init(VI_PIPE ViPipe)
+{
+	imx307_2l_init_universal(ViPipe, "1080P", WINMODE_1080P, 30);
 }
 
 void imx307_2l_wdr_1080p30_2to1_init(VI_PIPE ViPipe)
@@ -349,8 +370,7 @@ void imx307_2l_wdr_1080p30_2to1_init(VI_PIPE ViPipe)
 
 	// MIPI setting
 	imx307_2l_write_register(ViPipe, 0x3405, 0x00); //  REPETITION
-	imx307_2l_write_register(ViPipe, 0x3407,
-				 0x01); //  VREVERSE & HREVERSE & WINMODE
+	imx307_2l_write_register(ViPipe, 0x3407, 0x01); //  PHYSICAL_LANE_NUM
 	imx307_2l_write_register(ViPipe, 0x3414, 0x0A); //  OPB_SIZE_V
 	imx307_2l_write_register(ViPipe, 0x3415, 0x00);
 	imx307_2l_write_register(ViPipe, 0x3418, 0x9C); //  Y_OUT_SIZE
