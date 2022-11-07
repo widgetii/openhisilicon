@@ -229,13 +229,25 @@ void imx307_2l_init_universal(VI_PIPE ViPipe, const char *name,
 	imx307_2l_write_register(ViPipe, 0x3005, 0x00); // ADBIT
 	imx307_2l_write_register(ViPipe, 0x3007,
 				 winmode << 4); // VREVERSE & HREVERSE & WINMODE
-	imx307_2l_write_register(ViPipe, 0x3009, 0x02); // FRSEL & FDG_SEL
+	imx307_2l_write_register(ViPipe, 0x3009,
+				 fps <= 30 ? 2 : 1); // FRSEL & FDG_SEL
 	imx307_2l_write_register(ViPipe, 0x300A, 0x3C); // BLKLEVEL
 	imx307_2l_write_register(ViPipe, 0x3011, 0x0A);
-	imx307_2l_write_register(ViPipe, 0x3018, 0x65); // VMAX
-	imx307_2l_write_register(ViPipe, 0x3019, 0x04); // VMAX
-	imx307_2l_write_register(ViPipe, 0x301C, 0x30); // HMAX;
-	imx307_2l_write_register(ViPipe, 0x301D, 0x11); // HMAX;
+	imx307_2l_write_register(ViPipe, 0x3018, 0xEE); // VMAX
+	imx307_2l_write_register(ViPipe, 0x3019, 0x02); // VMAX
+
+	// 25fps 720p
+	//imx307_2l_write_register(ViPipe, 0x301C, 0xF0); // HMAX;
+	//imx307_2l_write_register(ViPipe, 0x301D, 0x1E); // HMAX;
+
+	// 30fps 720p
+	//imx307_2l_write_register(ViPipe, 0x301C, 0xC8); // HMAX;
+	//imx307_2l_write_register(ViPipe, 0x301D, 0x19); // HMAX;
+
+	// 50fps 720p
+	imx307_2l_write_register(ViPipe, 0x301C, 0x78); // HMAX;
+	imx307_2l_write_register(ViPipe, 0x301D, 0x0F); // HMAX;
+
 	imx307_2l_write_register(ViPipe, 0x3046, 0x00); // ODBIT & OPORTSEL
 	imx307_2l_write_register(ViPipe, 0x304B, 0x0A); // XVSOUTSEL & XHSOUTSEL
 	imx307_2l_write_register(ViPipe, 0x305C, 0x18); // INCKSEL1 37.125MHz
@@ -265,24 +277,24 @@ void imx307_2l_init_universal(VI_PIPE ViPipe, const char *name,
 	imx307_2l_write_register(ViPipe, 0x3443, 0x01); // CSI_LANE_MODE
 	imx307_2l_write_register(ViPipe, 0x3444, 0x20); // EXTCK_FREQ
 	imx307_2l_write_register(ViPipe, 0x3445, 0x25); // EXTCK_FREQ
-	imx307_2l_write_register(ViPipe, 0x3446, 0x57); // TCLKPOST
+	imx307_2l_write_register(ViPipe, 0x3446, 0x67); // TCLKPOST
 	imx307_2l_write_register(ViPipe, 0x3447, 0x00);
-	imx307_2l_write_register(ViPipe, 0x3448, 0x37); // THSZERO
+	imx307_2l_write_register(ViPipe, 0x3448, 0x57); // THSZERO
 	imx307_2l_write_register(ViPipe, 0x3449, 0x00);
-	imx307_2l_write_register(ViPipe, 0x344A, 0x1F); // THSPREPARE
+	imx307_2l_write_register(ViPipe, 0x344A, 0x2F); // THSPREPARE
 	imx307_2l_write_register(ViPipe, 0x344B, 0x00);
-	imx307_2l_write_register(ViPipe, 0x344C, 0x1F); // TCLKTRAIL
+	imx307_2l_write_register(ViPipe, 0x344C, 0x27); // TCLKTRAIL
 	imx307_2l_write_register(ViPipe, 0x344D, 0x00);
-	imx307_2l_write_register(ViPipe, 0x344E, 0x1F); // THSTRAIL
+	imx307_2l_write_register(ViPipe, 0x344E, 0x2F); // THSTRAIL
 	imx307_2l_write_register(ViPipe, 0x344F, 0x00);
-	imx307_2l_write_register(ViPipe, 0x3450, 0x77); // TCLKZERO
+	imx307_2l_write_register(ViPipe, 0x3450, 0xBF); // TCLKZERO
 	imx307_2l_write_register(ViPipe, 0x3451, 0x00);
-	imx307_2l_write_register(ViPipe, 0x3452, 0x1F); // TCLKPREPARE
+	imx307_2l_write_register(ViPipe, 0x3452, 0x2F); // TCLKPREPARE
 	imx307_2l_write_register(ViPipe, 0x3453, 0x00);
-	imx307_2l_write_register(ViPipe, 0x3454, 0x17); // TLPX
+	imx307_2l_write_register(ViPipe, 0x3454, 0x27); // TLPX
 	imx307_2l_write_register(ViPipe, 0x3455, 0x00);
-	imx307_2l_write_register(ViPipe, 0x3472, 0x9C); // X_OUT_SIZE
-	imx307_2l_write_register(ViPipe, 0x3473, 0x07); // X_OUT_SIZE
+	imx307_2l_write_register(ViPipe, 0x3472, 0x1C); // X_OUT_SIZE
+	imx307_2l_write_register(ViPipe, 0x3473, 0x05); // X_OUT_SIZE
 	imx307_2l_write_register(ViPipe, 0x3480, 0x49); // INCKSEL7
 
 	imx307_2l_default_reg_init(ViPipe);

@@ -275,7 +275,7 @@ static GK_VOID cmos_fps_set(VI_PIPE ViPipe, GK_FLOAT f32Fps,
 
 	case IMX307_SENSOR_720P_30FPS_LINEAR_MODE:
 	case IMX307_SENSOR_1080P_30FPS_LINEAR_MODE:
-		if ((f32Fps <= 30) && (f32Fps >= 0.12)) {
+		if ((f32Fps <= 60) && (f32Fps >= 0.12)) {
 			u32VMAX = IMX307_VMAX_1080P30_LINEAR * 30 /
 				  DIV_0_TO_1_FLOAT(f32Fps);
 		} else {
@@ -1223,7 +1223,7 @@ cmos_set_image_mode(VI_PIPE ViPipe,
 	u8SensorImageMode = pstSnsState->u8ImgMode;
 	pstSnsState->bSyncInit = GK_FALSE;
 
-	if (pstSensorImageMode->f32Fps <= 30) {
+	if (pstSensorImageMode->f32Fps <= 60) {
 		if (pstSnsState->enWDRMode == WDR_MODE_NONE) {
 			if (IMX307_RES_IS_720P(pstSensorImageMode->u16Width,
 					       pstSensorImageMode->u16Height)) {
