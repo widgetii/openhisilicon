@@ -220,9 +220,31 @@ enum WINMODE {
 	WINMODE_CROP = 4,
 };
 
-void imx307_2l_init_universal(VI_PIPE ViPipe, const char *name,
-			      enum WINMODE winmode, unsigned fps)
+enum MIPI_LANES {
+	MIPI_LANES_2,
+	MIPI_LANES_4,
+};
+
+static void imx307_write_adjacent(VI_PIPE ViPipe, GK_U32 addr, GK_U32 data)
 {
+	imx307_2l_write_register(ViPipe, addr, data & 0xff);
+	// () ?
+	imx307_2l_write_register(ViPipe, addr + 1, data & 0xff00 >> 8);
+}
+
+void imx307_2l_init_universal(VI_PIPE ViPipe, const char *name,
+			      enum WINMODE winmode, unsigned fps,
+			      enum MIPI_LANES mipi_lanes)
+{
+	if (fps <= 25)
+		fps = 25;
+	else if (fps <= 30)
+		fps = 30;
+	else if (fps <= 50)
+		fps = 50;
+	else if (fps <= 60)
+		fps = 60;
+
 	// Enter Standby
 	imx307_2l_write_register(ViPipe, 0x3000, 0x01); // Standby mode
 	imx307_2l_write_register(ViPipe, 0x3002, 0x00); // XMSTA
@@ -233,20 +255,34 @@ void imx307_2l_init_universal(VI_PIPE ViPipe, const char *name,
 				 fps <= 30 ? 2 : 1); // FRSEL & FDG_SEL
 	imx307_2l_write_register(ViPipe, 0x300A, 0x3C); // BLKLEVEL
 	imx307_2l_write_register(ViPipe, 0x3011, 0x0A);
-	imx307_2l_write_register(ViPipe, 0x3018, 0xEE); // VMAX
-	imx307_2l_write_register(ViPipe, 0x3019, 0x02); // VMAX
 
-	// 25fps 720p
-	//imx307_2l_write_register(ViPipe, 0x301C, 0xF0); // HMAX;
-	//imx307_2l_write_register(ViPipe, 0x301D, 0x1E); // HMAX;
+	// VMAX
+	if (winmode == WINMODE_720P) {
+		imx307_write_adjacent(ViPipe, 0x3018, 0x2EE); // 750
+	} else if (winmode == WINMODE_1080P) {
+		imx307_write_adjacent(ViPipe, 0x3018, 0x465); // 1125
+	}
 
-	// 30fps 720p
-	//imx307_2l_write_register(ViPipe, 0x301C, 0xC8); // HMAX;
-	//imx307_2l_write_register(ViPipe, 0x301D, 0x19); // HMAX;
-
-	// 50fps 720p
-	imx307_2l_write_register(ViPipe, 0x301C, 0x78); // HMAX;
-	imx307_2l_write_register(ViPipe, 0x301D, 0x0F); // HMAX;
+	// HMAX
+	if (winmode == WINMODE_720P) {
+		if (fps == 25)
+			imx307_write_adjacent(ViPipe, 0x301C, 0x1EF0);
+		else if (fps == 30)
+			imx307_write_adjacent(ViPipe, 0x301C, 0x19C8);
+		else if (fps == 50)
+			imx307_write_adjacent(ViPipe, 0x301C, 0x0F78);
+		else if (fps == 60)
+			imx307_write_adjacent(ViPipe, 0x301C, 0x0CE4);
+	} else if (winmode == WINMODE_1080P) {
+		if (fps == 25)
+			imx307_write_adjacent(ViPipe, 0x301C, 0x14A0);
+		else if (fps == 30)
+			imx307_write_adjacent(ViPipe, 0x301C, 0x1130);
+		else if (fps == 50)
+			imx307_write_adjacent(ViPipe, 0x301C, 0x0A50);
+		else if (fps == 60)
+			imx307_write_adjacent(ViPipe, 0x301C, 0x0898);
+	}
 
 	imx307_2l_write_register(ViPipe, 0x3046, 0x00); // ODBIT & OPORTSEL
 	imx307_2l_write_register(ViPipe, 0x304B, 0x0A); // XVSOUTSEL & XHSOUTSEL
@@ -277,24 +313,42 @@ void imx307_2l_init_universal(VI_PIPE ViPipe, const char *name,
 	imx307_2l_write_register(ViPipe, 0x3443, 0x01); // CSI_LANE_MODE
 	imx307_2l_write_register(ViPipe, 0x3444, 0x20); // EXTCK_FREQ
 	imx307_2l_write_register(ViPipe, 0x3445, 0x25); // EXTCK_FREQ
-	imx307_2l_write_register(ViPipe, 0x3446, 0x67); // TCLKPOST
+
+	if (winmode == WINMODE_720P) {
+		imx307_2l_write_register(ViPipe, 0x3446, 0x67); // TCLKPOST
+		imx307_2l_write_register(ViPipe, 0x3448, 0x57); // THSZERO
+		imx307_2l_write_register(ViPipe, 0x344A, 0x2F); // THSPREPARE
+		imx307_2l_write_register(ViPipe, 0x344C, 0x27); // TCLKTRAIL
+		imx307_2l_write_register(ViPipe, 0x344E, 0x2F); // THSTRAIL
+		imx307_2l_write_register(ViPipe, 0x3450, 0xBF); // TCLKZERO
+		imx307_2l_write_register(ViPipe, 0x3452, 0x2F); // TCLKPREPARE
+		imx307_2l_write_register(ViPipe, 0x3454, 0x27); // TLPX
+	} else if (winmode == WINMODE_1080P) {
+		imx307_2l_write_register(ViPipe, 0x3446, 0x57); // TCLKPOST
+		imx307_2l_write_register(ViPipe, 0x3448, 0x37); // THSZERO
+		imx307_2l_write_register(ViPipe, 0x344A, 0x1F); // THSPREPARE
+		imx307_2l_write_register(ViPipe, 0x344C, 0x1F); // TCLKTRAIL
+		imx307_2l_write_register(ViPipe, 0x344E, 0x1F); // THSTRAIL
+		imx307_2l_write_register(ViPipe, 0x3450, 0x77); // TCLKZERO
+		imx307_2l_write_register(ViPipe, 0x3452, 0x1F); // TCLKPREPARE
+		imx307_2l_write_register(ViPipe, 0x3454, 0x17); // TLPX
+	}
+	// Clear clock high halves
 	imx307_2l_write_register(ViPipe, 0x3447, 0x00);
-	imx307_2l_write_register(ViPipe, 0x3448, 0x57); // THSZERO
 	imx307_2l_write_register(ViPipe, 0x3449, 0x00);
-	imx307_2l_write_register(ViPipe, 0x344A, 0x2F); // THSPREPARE
 	imx307_2l_write_register(ViPipe, 0x344B, 0x00);
-	imx307_2l_write_register(ViPipe, 0x344C, 0x27); // TCLKTRAIL
 	imx307_2l_write_register(ViPipe, 0x344D, 0x00);
-	imx307_2l_write_register(ViPipe, 0x344E, 0x2F); // THSTRAIL
 	imx307_2l_write_register(ViPipe, 0x344F, 0x00);
-	imx307_2l_write_register(ViPipe, 0x3450, 0xBF); // TCLKZERO
 	imx307_2l_write_register(ViPipe, 0x3451, 0x00);
-	imx307_2l_write_register(ViPipe, 0x3452, 0x2F); // TCLKPREPARE
 	imx307_2l_write_register(ViPipe, 0x3453, 0x00);
-	imx307_2l_write_register(ViPipe, 0x3454, 0x27); // TLPX
 	imx307_2l_write_register(ViPipe, 0x3455, 0x00);
-	imx307_2l_write_register(ViPipe, 0x3472, 0x1C); // X_OUT_SIZE
-	imx307_2l_write_register(ViPipe, 0x3473, 0x05); // X_OUT_SIZE
+
+	// X_OUT_SIZE
+	if (winmode == WINMODE_720P) {
+		imx307_write_adjacent(ViPipe, 0x3472, 0x51C);
+	} else if (winmode == WINMODE_1080P) {
+		imx307_write_adjacent(ViPipe, 0x3472, 0x79C);
+	}
 	imx307_2l_write_register(ViPipe, 0x3480, 0x49); // INCKSEL7
 
 	imx307_2l_default_reg_init(ViPipe);
@@ -309,13 +363,15 @@ void imx307_2l_init_universal(VI_PIPE ViPipe, const char *name,
 /* 720p-HD readout mode */
 void imx307_2l_linear_720p30_init(VI_PIPE ViPipe)
 {
-	imx307_2l_init_universal(ViPipe, "720P", WINMODE_720P, 30);
+	imx307_2l_init_universal(ViPipe, "720P", WINMODE_720P, 50,
+				 MIPI_LANES_2);
 }
 
 /* 1080P30 and 1080P25 */
 void imx307_2l_linear_1080p30_init(VI_PIPE ViPipe)
 {
-	imx307_2l_init_universal(ViPipe, "1080P", WINMODE_1080P, 30);
+	imx307_2l_init_universal(ViPipe, "1080P", WINMODE_1080P, 30,
+				 MIPI_LANES_2);
 }
 
 void imx307_2l_wdr_1080p30_2to1_init(VI_PIPE ViPipe)
