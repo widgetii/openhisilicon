@@ -303,9 +303,15 @@ void imx307_2l_init_universal(VI_PIPE ViPipe, const char *name,
 	imx307_2l_write_register(ViPipe, 0x31EC, 0x37); // ADBIT3
 
 	imx307_2l_write_register(ViPipe, 0x3405, 0x10); // REPETITION
-	imx307_2l_write_register(ViPipe, 0x3414, 0x0A); // OPB_SIZE_V
-	imx307_2l_write_register(ViPipe, 0x3418, 0x49); // Y_OUT_SIZE
-	imx307_2l_write_register(ViPipe, 0x3419, 0x04); // Y_OUT_SIZE
+
+	if (winmode == WINMODE_720P) {
+		imx307_write_adjacent(ViPipe, 0x3418, 0x2D9); // Y_OUT_SIZE
+		imx307_2l_write_register(ViPipe, 0x3414, 0x04); // OPB_SIZE_V
+	} else if (winmode == WINMODE_1080P) {
+		imx307_write_adjacent(ViPipe, 0x3418, 0x449); // Y_OUT_SIZE
+		imx307_2l_write_register(ViPipe, 0x3414, 0x0A); // OPB_SIZE_V
+	}
+
 	imx307_2l_write_register(ViPipe, 0x3441, 0x0A); // CSI_DT_FMT
 	imx307_2l_write_register(ViPipe, 0x3442, 0x0A); // CSI_DT_FMT
 
