@@ -485,7 +485,7 @@ void imx307_2l_init_universal(VI_PIPE ViPipe, const char *name,
 /* 720p-HD readout mode */
 void imx307_2l_linear_720p30_init(VI_PIPE ViPipe)
 {
-	imx307_2l_init_universal(ViPipe, "720P", WINMODE_720P, 50,
+	imx307_2l_init_universal(ViPipe, "720P", WINMODE_720P, 60,
 				 MIPI_LANES_2);
 }
 
