@@ -228,8 +228,7 @@ enum MIPI_LANES {
 static void imx307_write_adjacent(VI_PIPE ViPipe, GK_U32 addr, GK_U32 data)
 {
 	imx307_2l_write_register(ViPipe, addr, data & 0xff);
-	// () ?
-	imx307_2l_write_register(ViPipe, addr + 1, data & 0xff00 >> 8);
+	imx307_2l_write_register(ViPipe, addr + 1, (data & 0xff00) >> 8);
 }
 
 void imx307_2l_init_universal(VI_PIPE ViPipe, const char *name,
