@@ -302,7 +302,10 @@ void imx307_2l_init_universal(VI_PIPE ViPipe, const char *name,
 	imx307_2l_write_register(ViPipe, 0x317C, 0x12); // ADBIT2
 	imx307_2l_write_register(ViPipe, 0x31EC, 0x37); // ADBIT3
 
-	imx307_2l_write_register(ViPipe, 0x3405, 0x10); // REPETITION
+	//if (fps <= 30)
+		imx307_2l_write_register(ViPipe, 0x3405, 0x10); // REPETITION
+	//else
+		//imx307_2l_write_register(ViPipe, 0x3405, 0x0); // REPETITION
 
 	if (winmode == WINMODE_720P) {
 		imx307_write_adjacent(ViPipe, 0x3418, 0x2D9); // Y_OUT_SIZE
