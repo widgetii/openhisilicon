@@ -127,9 +127,9 @@ extern int IMX335_read_register(VI_PIPE ViPipe, int addr);
 #define IMX335_4M_25FPS_10BIT_WDR_MODE (2) //2560x1440
 #define IMX335_4M_30FPS_10BIT_WDR_MODE (3) //2592x1520
 
-#define IMX335_RES_IS_5M_12BIT_LINEAR(w, h) (((w) == 2592) && ((h) == 1944))
+#define IMX335_RES_IS_5M_12BIT_LINEAR(w, h) (((w) == 1296) && ((h) == 972))
 #define IMX335_RES_IS_5M_10BIT_WDR(w, h) (((w) == 2592) && ((h) == 1944))
-#define IMX335_RES_IS_4M_12BIT_LINEAR(w, h) (((w) == 2592) && ((h) == 1520))
+#define IMX335_RES_IS_4M_12BIT_LINEAR(w, h) (((w) == 1296) && ((h) == 760))
 #define IMX335_RES_IS_4M_10BIT_WDR(w, h) (((w) == 2592) && ((h) == 1520))
 #define IMX335_RES_IS_4M_10BIT_WDR_EX(w, h) (((w) == 2560) && ((h) == 1440))
 
@@ -1836,7 +1836,7 @@ static GK_S32 sensor_register_callback(VI_PIPE ViPipe, ALG_LIB_S *pstAeLib,
 	stSnsAttrInfo.eSensorId = IMX335_ID;
 
 	s32Ret = cmos_init_sensor_exp_function(&stIspRegister.stSnsExp);
-	s32Ret |= GK_API_ISP_SensorRegCallBack(ViPipe, &stSnsAttrInfo,
+	s32Ret |= HI_MPI_ISP_SensorRegCallBack(ViPipe, &stSnsAttrInfo,
 					       &stIspRegister);
 
 	if (GK_SUCCESS != s32Ret) {
@@ -1846,7 +1846,7 @@ static GK_S32 sensor_register_callback(VI_PIPE ViPipe, ALG_LIB_S *pstAeLib,
 	}
 
 	s32Ret = cmos_init_ae_exp_function(&stAeRegister.stSnsExp);
-	s32Ret |= GK_API_AE_SensorRegCallBack(ViPipe, pstAeLib, &stSnsAttrInfo,
+	s32Ret |= HI_MPI_AE_SensorRegCallBack(ViPipe, pstAeLib, &stSnsAttrInfo,
 					      &stAeRegister);
 
 	if (GK_SUCCESS != s32Ret) {
@@ -1857,7 +1857,7 @@ static GK_S32 sensor_register_callback(VI_PIPE ViPipe, ALG_LIB_S *pstAeLib,
 	}
 
 	s32Ret = cmos_init_awb_exp_function(&stAwbRegister.stSnsExp);
-	s32Ret |= GK_API_AWB_SensorRegCallBack(ViPipe, pstAwbLib,
+	s32Ret |= HI_MPI_AWB_SensorRegCallBack(ViPipe, pstAwbLib,
 					       &stSnsAttrInfo, &stAwbRegister);
 
 	if (GK_SUCCESS != s32Ret) {
@@ -1878,7 +1878,7 @@ static GK_S32 sensor_unregister_callback(VI_PIPE ViPipe, ALG_LIB_S *pstAeLib,
 	CMOS_CHECK_POINTER(pstAeLib);
 	CMOS_CHECK_POINTER(pstAwbLib);
 
-	s32Ret = GK_API_ISP_SensorUnRegCallBack(ViPipe, IMX335_ID);
+	s32Ret = HI_MPI_ISP_SensorUnRegCallBack(ViPipe, IMX335_ID);
 
 	if (GK_SUCCESS != s32Ret) {
 		ISP_TRACE(MODULE_DBG_ERR,
@@ -1886,7 +1886,7 @@ static GK_S32 sensor_unregister_callback(VI_PIPE ViPipe, ALG_LIB_S *pstAeLib,
 		return s32Ret;
 	}
 
-	s32Ret = GK_API_AE_SensorUnRegCallBack(ViPipe, pstAeLib, IMX335_ID);
+	s32Ret = HI_MPI_AE_SensorUnRegCallBack(ViPipe, pstAeLib, IMX335_ID);
 
 	if (GK_SUCCESS != s32Ret) {
 		ISP_TRACE(
@@ -1895,7 +1895,7 @@ static GK_S32 sensor_unregister_callback(VI_PIPE ViPipe, ALG_LIB_S *pstAeLib,
 		return s32Ret;
 	}
 
-	s32Ret = GK_API_AWB_SensorUnRegCallBack(ViPipe, pstAwbLib, IMX335_ID);
+	s32Ret = HI_MPI_AWB_SensorUnRegCallBack(ViPipe, pstAwbLib, IMX335_ID);
 
 	if (GK_SUCCESS != s32Ret) {
 		ISP_TRACE(

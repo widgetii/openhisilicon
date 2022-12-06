@@ -236,12 +236,17 @@ void IMX335_linear_5M30_12bit_init(VI_PIPE ViPipe)
 	IMX335_write_register(ViPipe, 0x300D, 0x40);
 	IMX335_write_register(ViPipe, 0x3050, 0x00);
 
+	/* Horizontal/Vertical 2/2-line binning */
+	IMX335_write_register(ViPipe, 0x3018, 0x01);
+	IMX335_write_register(ViPipe, 0x3199, 0b00110000);
+	IMX335_write_register(ViPipe, 0x3300, 0x01);
+
 	IMX335_write_register(ViPipe, 0x314C, 0xC0);
 
 	IMX335_write_register(ViPipe, 0x315A, 0x06);
 	IMX335_write_register(ViPipe, 0x316A, 0x7E);
 
-	IMX335_write_register(ViPipe, 0x319D, 0x00);
+	IMX335_write_register(ViPipe, 0x319D, 0x01);
 	IMX335_write_register(ViPipe, 0x319E, 0x02);
 	IMX335_write_register(ViPipe, 0x31A1, 0x00);
 	IMX335_write_register(ViPipe, 0x3288, 0x21);
@@ -348,7 +353,7 @@ void IMX335_wdr_5M30_10bit_init(VI_PIPE ViPipe)
 	IMX335_write_register(ViPipe, 0x3002, 0x01);
 	IMX335_write_register(ViPipe, 0x300C, 0x5B);
 	IMX335_write_register(ViPipe, 0x300D, 0x40);
-	IMX335_write_register(ViPipe, 0x3018, 0x00);
+	IMX335_write_register(ViPipe, 0x3018, 0x00); /* no crop */
 	IMX335_write_register(ViPipe, 0x302C, 0x30);
 	IMX335_write_register(ViPipe, 0x302D, 0x00);
 	IMX335_write_register(ViPipe, 0x302E, 0x38);
@@ -480,7 +485,7 @@ void IMX335_wdr_4M25_10bit_init(VI_PIPE ViPipe) // use weighted binning mode
 	IMX335_write_register(ViPipe, 0x3004, 0x00);
 	IMX335_write_register(ViPipe, 0x300C, 0x5B);
 	IMX335_write_register(ViPipe, 0x300D, 0x40);
-	IMX335_write_register(ViPipe, 0x3018, 0x04);
+	IMX335_write_register(ViPipe, 0x3018, 0x04); /* crop */
 	IMX335_write_register(ViPipe, 0x302C, 0x3c);
 	IMX335_write_register(ViPipe, 0x302D, 0x00);
 	IMX335_write_register(ViPipe, 0x302E, 0x20);
@@ -660,7 +665,7 @@ void IMX335_wdr_4M30_10bit_init(VI_PIPE ViPipe)
 
 	IMX335_write_register(ViPipe, 0x300C, 0x5B);
 	IMX335_write_register(ViPipe, 0x300D, 0x40);
-	IMX335_write_register(ViPipe, 0x3018, 0x04);
+	IMX335_write_register(ViPipe, 0x3018, 0x04); /* crop */
 	IMX335_write_register(ViPipe, 0x3030, 0xE4);
 	IMX335_write_register(ViPipe, 0x3031, 0x0C);
 	IMX335_write_register(ViPipe, 0x3034, 0x77);
