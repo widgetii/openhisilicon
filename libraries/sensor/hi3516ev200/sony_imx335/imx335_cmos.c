@@ -121,11 +121,12 @@ extern int IMX335_read_register(VI_PIPE ViPipe, int addr);
 #define IMX335_VMAX_4M_25FPS_10BIT_WDR (0xBB8 + IMX335_INCREASE_LINES)
 
 // sensor fps mode
-
-#define IMX335_5M_30FPS_12BIT_LINEAR_MODE (0) //2592x1944
-#define IMX335_5M_30FPS_10BIT_WDR_MODE (1) //2592x1944
-#define IMX335_4M_25FPS_10BIT_WDR_MODE (2) //2560x1440
-#define IMX335_4M_30FPS_10BIT_WDR_MODE (3) //2592x1520
+enum FpsMode {
+	IMX335_5M_30FPS_12BIT_LINEAR_MODE = 0, //2592x1944
+	IMX335_5M_30FPS_10BIT_WDR_MODE = 1, //2592x1944
+	IMX335_4M_25FPS_10BIT_WDR_MODE = 2, //2560x1440
+	IMX335_4M_30FPS_10BIT_WDR_MODE = 3, //2592x1520
+};
 
 #define IMX335_RES_IS_5M_12BIT_LINEAR(w, h) (((w) == 1296) && ((h) == 972))
 #define IMX335_RES_IS_5M_10BIT_WDR(w, h) (((w) == 2592) && ((h) == 1944))
@@ -1935,6 +1936,36 @@ ISP_SNS_OBJ_S stSnsImx335Obj = {
 	.pfnSetBusInfo = IMX335_set_bus_info,
 	.pfnSetInit = sensor_set_init
 };
+
+typedef struct {
+	uint32_t w, h, max_fps;
+} Resolution;
+
+enum Filter {
+	BY_WDR_MODE,
+};
+
+const Resolution linear_resolution[] = { { 2592, 1944, 30 },
+					 { 1296, 972, 30 },
+					 { 0, 0, 0 } };
+
+// returns available resolutions without cropping by WDR mode
+void *get_capabilites(enum Filter filter, int param)
+{
+	switch (filter) {
+	case BY_WDR_MODE:
+		switch (param) {
+		case WDR_MODE_NONE:
+			return linear_resolution;
+		case WDR_MODE_2To1_LINE:
+			break;
+		}
+		break;
+	default:;
+	}
+
+	return NULL;
+}
 
 #ifdef __cplusplus
 #if __cplusplus
