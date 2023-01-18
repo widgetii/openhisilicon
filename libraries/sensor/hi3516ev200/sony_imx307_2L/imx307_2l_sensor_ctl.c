@@ -298,13 +298,19 @@ void imx307_2l_init_universal(VI_PIPE ViPipe, enum WINMODE winmode,
 
 	imx307_2l_write_register(ViPipe, 0x311C, 0x0E);
 	imx307_2l_write_register(ViPipe, 0x3128, 0x04);
-	imx307_2l_write_register(ViPipe, 0x3129, 0x1D); // ADBIT1
 	imx307_2l_write_register(ViPipe, 0x313B, 0x41);
 	imx307_2l_write_register(ViPipe, 0x315E,
 				 0x1A); // INCKSEL5 37.125MHz INCK5 Setting
 	imx307_2l_write_register(ViPipe, 0x3164, 0x1A); // INCKSEL6 37.125MHz
-	imx307_2l_write_register(ViPipe, 0x317C, 0x12); // ADBIT2
-	imx307_2l_write_register(ViPipe, 0x31EC, 0x37); // ADBIT3
+	if (bitness == 12) {
+		imx307_2l_write_register(ViPipe, 0x3129, 0); // ADBIT1
+		imx307_2l_write_register(ViPipe, 0x317C, 0); // ADBIT2
+		imx307_2l_write_register(ViPipe, 0x31EC, 0); // ADBIT3
+	} else { /* bitness == 10 */
+		imx307_2l_write_register(ViPipe, 0x3129, 0x1D); // ADBIT1
+		imx307_2l_write_register(ViPipe, 0x317C, 0x12); // ADBIT2
+		imx307_2l_write_register(ViPipe, 0x31EC, 0x37); // ADBIT3
+	}
 
 	if (mipi_lanes == MIPI_LANES_2) {
 		//if (fps <= 30)
