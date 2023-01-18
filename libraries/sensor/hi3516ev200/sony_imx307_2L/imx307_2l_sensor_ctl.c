@@ -231,9 +231,9 @@ static void imx307_write_adjacent(VI_PIPE ViPipe, GK_U32 addr, GK_U32 data)
 	imx307_2l_write_register(ViPipe, addr + 1, (data & 0xff00) >> 8);
 }
 
-void imx307_2l_init_universal(VI_PIPE ViPipe, const char *name,
-			      enum WINMODE winmode, unsigned fps,
-			      enum MIPI_LANES mipi_lanes)
+void imx307_2l_init_universal(VI_PIPE ViPipe, enum WINMODE winmode,
+			      unsigned fps, enum MIPI_LANES mipi_lanes,
+			      int bitness)
 {
 	if (fps <= 25)
 		fps = 25;
@@ -247,12 +247,14 @@ void imx307_2l_init_universal(VI_PIPE ViPipe, const char *name,
 	// Enter Standby
 	imx307_2l_write_register(ViPipe, 0x3000, 0x01); // Standby mode
 	imx307_2l_write_register(ViPipe, 0x3002, 0x00); // XMSTA
-	imx307_2l_write_register(ViPipe, 0x3005, 0x00); // ADBIT
+	imx307_2l_write_register(ViPipe, 0x3005,
+				 bitness == 12 ? 1 : 0); // ADBIT
 	imx307_2l_write_register(ViPipe, 0x3007,
 				 winmode << 4); // VREVERSE & HREVERSE & WINMODE
 	imx307_2l_write_register(ViPipe, 0x3009,
 				 fps <= 30 ? 2 : 1); // FRSEL & FDG_SEL
-	imx307_2l_write_register(ViPipe, 0x300A, 0x3C); // BLKLEVEL
+	if (bitness == 10)
+		imx307_2l_write_register(ViPipe, 0x300A, 0x3C); // BLKLEVEL
 	imx307_2l_write_register(ViPipe, 0x3011, 0x0A);
 
 	// VMAX
@@ -283,7 +285,9 @@ void imx307_2l_init_universal(VI_PIPE ViPipe, const char *name,
 			imx307_write_adjacent(ViPipe, 0x301C, 0x0898);
 	}
 
-	imx307_2l_write_register(ViPipe, 0x3046, 0x00); // ODBIT & OPORTSEL
+	// TODO: +LVDS mode
+	imx307_2l_write_register(ViPipe, 0x3046,
+				 bitness == 12 ? 1 : 0); // ODBIT & OPORTSEL
 	imx307_2l_write_register(ViPipe, 0x304B, 0x0A); // XVSOUTSEL & XHSOUTSEL
 	imx307_2l_write_register(ViPipe, 0x305C, 0x18); // INCKSEL1 37.125MHz
 	imx307_2l_write_register(ViPipe, 0x305D, 0x03); // INCKSEL2
@@ -302,10 +306,12 @@ void imx307_2l_init_universal(VI_PIPE ViPipe, const char *name,
 	imx307_2l_write_register(ViPipe, 0x317C, 0x12); // ADBIT2
 	imx307_2l_write_register(ViPipe, 0x31EC, 0x37); // ADBIT3
 
-	//if (fps <= 30)
+	if (mipi_lanes == MIPI_LANES_2) {
+		//if (fps <= 30)
 		imx307_2l_write_register(ViPipe, 0x3405, 0x10); // REPETITION
-	//else
+		//else
 		//imx307_2l_write_register(ViPipe, 0x3405, 0x0); // REPETITION
+	}
 
 	if (winmode == WINMODE_720P) {
 		imx307_write_adjacent(ViPipe, 0x3418, 0x2D9); // Y_OUT_SIZE
@@ -487,22 +493,23 @@ void imx307_2l_init_universal(VI_PIPE ViPipe, const char *name,
 	// Standby Cancel
 	imx307_2l_write_register(ViPipe, 0x3000, 0x00); // standby
 
-	printf("=====Sony imx307_2l sensor %s%dfps(MIPI) init success!=====\n",
-	       name, fps);
+	const char *mode_name = "1080P";
+	if (winmode == WINMODE_720P)
+		mode_name = "720P";
+	printf("=====Sony imx307_2l sensor %s%dfps(MIPI, %dbit) init success!=====\n",
+	       mode_name, fps, bitness);
 }
 
 /* 720p-HD readout mode */
 void imx307_2l_linear_720p30_init(VI_PIPE ViPipe)
 {
-	imx307_2l_init_universal(ViPipe, "720P", WINMODE_720P, 60,
-				 MIPI_LANES_2);
+	imx307_2l_init_universal(ViPipe, WINMODE_720P, 60, MIPI_LANES_2, 12);
 }
 
 /* 1080P30 and 1080P25 */
 void imx307_2l_linear_1080p30_init(VI_PIPE ViPipe)
 {
-	imx307_2l_init_universal(ViPipe, "1080P", WINMODE_1080P, 30,
-				 MIPI_LANES_2);
+	imx307_2l_init_universal(ViPipe, WINMODE_1080P, 30, MIPI_LANES_4, 10);
 }
 
 void imx307_2l_wdr_1080p30_2to1_init(VI_PIPE ViPipe)
