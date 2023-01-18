@@ -306,10 +306,14 @@ void imx307_2l_init_universal(VI_PIPE ViPipe, enum WINMODE winmode,
 		imx307_2l_write_register(ViPipe, 0x3129, 0); // ADBIT1
 		imx307_2l_write_register(ViPipe, 0x317C, 0); // ADBIT2
 		imx307_2l_write_register(ViPipe, 0x31EC, 0); // ADBIT3
+		imx307_2l_write_register(ViPipe, 0x3441, 0x0C); // CSI_DT_FMT
+		imx307_2l_write_register(ViPipe, 0x3442, 0x0C); // CSI_DT_FMT
 	} else { /* bitness == 10 */
 		imx307_2l_write_register(ViPipe, 0x3129, 0x1D); // ADBIT1
 		imx307_2l_write_register(ViPipe, 0x317C, 0x12); // ADBIT2
 		imx307_2l_write_register(ViPipe, 0x31EC, 0x37); // ADBIT3
+		imx307_2l_write_register(ViPipe, 0x3441, 0x0A); // CSI_DT_FMT
+		imx307_2l_write_register(ViPipe, 0x3442, 0x0A); // CSI_DT_FMT
 	}
 
 	if (mipi_lanes == MIPI_LANES_2) {
@@ -326,9 +330,6 @@ void imx307_2l_init_universal(VI_PIPE ViPipe, enum WINMODE winmode,
 		imx307_write_adjacent(ViPipe, 0x3418, 0x449); // Y_OUT_SIZE
 		imx307_2l_write_register(ViPipe, 0x3414, 0x0A); // OPB_SIZE_V
 	}
-
-	imx307_2l_write_register(ViPipe, 0x3441, 0x0A); // CSI_DT_FMT
-	imx307_2l_write_register(ViPipe, 0x3442, 0x0A); // CSI_DT_FMT
 
 	if (mipi_lanes == MIPI_LANES_2) {
 		imx307_2l_write_register(ViPipe, 0x3443, 0x01); // CSI_LANE_MODE
