@@ -510,7 +510,7 @@ void imx307_2l_init_universal(VI_PIPE ViPipe, enum WINMODE winmode,
 /* 720p-HD readout mode */
 void imx307_2l_linear_720p30_init(VI_PIPE ViPipe)
 {
-	imx307_2l_init_universal(ViPipe, WINMODE_720P, 60, MIPI_LANES_2, 12);
+	imx307_2l_init_universal(ViPipe, WINMODE_720P, 60, MIPI_LANES_2, 10);
 }
 
 /* 1080P30 and 1080P25 */
