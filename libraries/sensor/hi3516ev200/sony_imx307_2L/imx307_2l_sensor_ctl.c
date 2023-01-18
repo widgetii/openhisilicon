@@ -221,8 +221,8 @@ enum WINMODE {
 };
 
 enum MIPI_LANES {
-	MIPI_LANES_2,
-	MIPI_LANES_4,
+	MIPI_LANES_2 = 2,
+	MIPI_LANES_4 = 4,
 };
 
 static void imx307_write_adjacent(VI_PIPE ViPipe, GK_U32 addr, GK_U32 data)
@@ -503,8 +503,8 @@ void imx307_2l_init_universal(VI_PIPE ViPipe, enum WINMODE winmode,
 	const char *mode_name = "1080P";
 	if (winmode == WINMODE_720P)
 		mode_name = "720P";
-	printf("=====Sony imx307_2l sensor %s%dfps(MIPI, %dbit) init success!=====\n",
-	       mode_name, fps, bitness);
+	printf("=====Sony imx307_%dl sensor %s%dfps(MIPI, %dbit) init success!=====\n",
+	       mipi_lanes, mode_name, fps, bitness);
 }
 
 /* 720p-HD readout mode */
