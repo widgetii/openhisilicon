@@ -29,14 +29,14 @@
 #include <linux/cdev.h>
 #include <linux/device.h>
 #if 1
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 #include <linux/slab.h>
 #endif
 
 #else
 #include <linux/hrtimer.h>
 #endif
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 #include <asm/io.h>
 #include <linux/slab.h>
 #include "piris_hal.h"

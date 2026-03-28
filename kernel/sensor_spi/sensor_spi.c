@@ -19,7 +19,7 @@
 #else
 #include <linux/spi/spi.h>
 #endif
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 #include "isp_ext.h"
 #include "sensor_spi.h"
 

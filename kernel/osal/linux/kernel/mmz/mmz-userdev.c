@@ -27,7 +27,7 @@
 #include <linux/sched.h>
 #include <linux/dma-mapping.h>
 
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 #include <asm/io.h>
 #include <asm/cacheflush.h>
 

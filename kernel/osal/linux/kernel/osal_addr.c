@@ -5,7 +5,7 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <asm/io.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 #include <linux/version.h>
 
 #include "../../../../compat/kernel_compat.h"

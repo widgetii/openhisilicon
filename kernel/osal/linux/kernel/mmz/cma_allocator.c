@@ -5,7 +5,7 @@
 #include <linux/slab.h>
 #include <linux/init.h>
 #include <linux/delay.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 #include <asm/io.h>
 #include <linux/list.h>
 #include <asm/cacheflush.h>

@@ -18,7 +18,7 @@
 #include <linux/init.h>
 #include <linux/delay.h>
 #include <linux/version.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 #include <asm/io.h>
 #include <linux/interrupt.h>
 #include <linux/ioport.h>
